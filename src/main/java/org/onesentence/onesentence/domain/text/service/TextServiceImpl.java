@@ -31,9 +31,9 @@ public class TextServiceImpl implements TextService{
 	private final FCMService fcmService;
 	private final GptService gptService;
 
-	private static final ExecutorService GPT_EXECUTOR = Executors.newFixedThreadPool(5);
+	private static final ExecutorService SAVE_EXECUTOR = Executors.newFixedThreadPool(5);
 	private static final ExecutorService FCM_EXECUTOR = Executors.newFixedThreadPool(5);
-	private static final ExecutorService SAVE_EXECUTOR = Executors.newFixedThreadPool(8);
+	private static final ExecutorService GPT_EXECUTOR = Executors.newFixedThreadPool(8);
 
 
 
@@ -48,7 +48,7 @@ public class TextServiceImpl implements TextService{
 				Todo savedTodo = todoService.saveTodo(gptCallTodoRequest, userId);
 
 				sendFcmMessageAsync(savedTodo, userId);
-			}, GPT_EXECUTOR);
+			}, SAVE_EXECUTOR);
 
 		// 비동기 로직이기 때문에, 임시 ID나 응답을 바로 반환
 		return System.currentTimeMillis();
@@ -76,7 +76,7 @@ public class TextServiceImpl implements TextService{
 			} catch (JsonProcessingException e) {
 				throw new RuntimeException(e);
 			}
-		}, SAVE_EXECUTOR);
+		}, GPT_EXECUTOR);
 	}
 
 	private void sendFcmMessageAsync(Todo savedTodo, Long userId) {
