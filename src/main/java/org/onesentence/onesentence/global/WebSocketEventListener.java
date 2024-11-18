@@ -26,9 +26,7 @@ public class WebSocketEventListener {
 		connectedUserCount++;
 		System.out.println("사용자가 입장했습니다. 현재 연결된 사용자 수: " + connectedUserCount);
 
-		Long todoId = extractTodoIdFromEvent(event);
-
-		String queueName = "todo-" + todoId + "-queue";
+		String queueName = "todo-queue";
 		sendMessagesFromQueue(queueName);
 	}
 
@@ -40,28 +38,12 @@ public class WebSocketEventListener {
 		System.out.println("사용자가 퇴장했습니다. 현재 연결된 사용자 수: " + connectedUserCount);
 	}
 
-	public boolean isUserConnected() {
-		return connectedUserCount > 0;
-	}
-
-	private Long extractTodoIdFromEvent(SessionConnectEvent event) {
-		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-		String destination = headerAccessor.getDestination();
-
-		if (destination != null && destination.startsWith("/todo/")) {
-			String todoIdStr = destination.substring("/todo/".length());
-			return Long.parseLong(todoIdStr);
-		}
-
-		return null;
-	}
-
 	private void sendMessagesFromQueue(String queueName) {
 		while (connectedUserCount > 0) {
 			CoordinationMessage message = (CoordinationMessage) rabbitTemplate.receiveAndConvert(
 				queueName);
 			if (message != null) {
-				String destination = "/sub/chatroom/" + message.getTodoId();
+				String destination = "/sub/chatroom/hanfinal";
 				simpMessagingTemplate.convertAndSend(destination, message);
 			} else {
 				break;

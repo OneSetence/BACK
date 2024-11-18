@@ -284,9 +284,8 @@ public class TodoServiceImpl implements TodoService {
 			.nickName(user.getNickName())
 			.build();
 
-		String queueName = "todo-" + todoId + "-queue";
-		Queue dynamicQueue = new Queue(queueName, true);
-		rabbitAdmin.declareQueue(dynamicQueue);
+		String queueName = "todo-queue";
+		rabbitAdmin.declareQueue(new Queue(queueName, true));
 
 		rabbitTemplate.convertAndSend(queueName, messageDto);
 	}
